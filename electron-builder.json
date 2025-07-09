@@ -1,0 +1,13 @@
+{
+  "appId": "com.yourcompany.focuska",
+  "productName": "Focuska",
+  "files": [
+    "dist-react/**",
+    "src/electron/**",
+    "package.json"
+  ],
+  "mac": {
+    "target": ["dmg", "zip"],
+    "category": "public.app-category.productivity"
+  }
+}
