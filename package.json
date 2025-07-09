@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "cross-env": "^7.0.3",
+    "dotenv": "^17.1.0",
     "fkill": "^9.0.0",
     "framer-motion": "^12.23.0",
     "mongoose": "^8.16.2",

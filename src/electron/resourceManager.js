@@ -127,7 +127,8 @@ export async function getGitInfo() {
       console.error("GitHub repository not configured.");
       return [];
     }
-    const token = process.env.GIT_TOKEN;
+    console.log(`${process.env.GIT_TOKEN}`)
+    const token = `${process.env.GIT_TOKEN}`;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const since = today.toISOString();
@@ -173,6 +174,7 @@ export async function getGitInfo() {
 const backupFile = "./hosts_backup";
 
 export async function block() {
+
   try {
     if (!fs.existsSync(backupFile)) {
       fs.copyFileSync("/etc/hosts", backupFile);
