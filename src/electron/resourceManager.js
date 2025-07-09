@@ -5,11 +5,14 @@ import fkill from "fkill";
 import { exec } from "child_process";
 import fetch from "node-fetch";
 
-import process from "process";
 
 // ✅ MongoDB Atlas connection
-const MONGO_URI = "mongodb+srv://kanishkranjan17:capnin@leaderboard.5gmx8.mongodb.net/?retryWrites=true&w=majority&appName=leaderboard";
-await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+const MONGO_URI =
+  "mongodb+srv://kanishkranjan17:capnin@leaderboard.5gmx8.mongodb.net/?retryWrites=true&w=majority&appName=leaderboard";
+await mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // ✅ MongoDB schema & model
 const FocusSchema = new mongoose.Schema({
@@ -38,10 +41,15 @@ export async function blockApps() {
   try {
     const processes = await psList();
     const toKill = processes.filter((p) =>
-      blockedApps.some((name) => p.name.toLowerCase().includes(name.toLowerCase()))
+      blockedApps.some((name) =>
+        p.name.toLowerCase().includes(name.toLowerCase())
+      )
     );
     if (toKill.length > 0) {
-      console.log("Blocking apps:", toKill.map((p) => p.name));
+      console.log(
+        "Blocking apps:",
+        toKill.map((p) => p.name)
+      );
       await Promise.all(toKill.map((p) => fkill(p.pid, { force: true })));
     } else {
       console.log("No blocked apps running.");
@@ -111,8 +119,9 @@ export async function getTimeLeft() {
 export async function getGitInfo() {
   console.log("Fetching GitHub info...");
   try {
-    const repo = "https://api.github.com/repos/KanishkRanjan/Capnin-ICPC-Journey";
-    const token = process.env.GITHUB_TOKEN;
+    const repo =
+      "https://api.github.com/repos/KanishkRanjan/Capnin-ICPC-Journey";
+    const token = "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";
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const since = today.toISOString();
@@ -120,12 +129,14 @@ export async function getGitInfo() {
     const commitsRes = await fetch(`${repo}/commits?since=${since}`, {
       headers: {
         Authorization: `token ${token}`,
-        Accept: "application/vnd.github.v3+json"
-      }
+        Accept: "application/vnd.github.v3+json",
+      },
     });
 
     if (!commitsRes.ok) {
-      throw new Error(`GitHub API error: ${commitsRes.status} ${commitsRes.statusText}`);
+      throw new Error(
+        `GitHub API error: ${commitsRes.status} ${commitsRes.statusText}`
+      );
     }
 
     const commits = await commitsRes.json();
@@ -136,8 +147,8 @@ export async function getGitInfo() {
       const commitRes = await fetch(`${repo}/commits/${sha}`, {
         headers: {
           Authorization: `token ${token}`,
-          Accept: "application/vnd.github.v3+json"
-        }
+          Accept: "application/vnd.github.v3+json",
+        },
       });
       const detail = await commitRes.json();
       detail?.files?.forEach((file) => {
@@ -176,19 +187,28 @@ export async function block() {
 }
 
 export async function unblock() {
+  console.log("Unblocking sites...");
   const timeLeft = await getTimeLeft();
-  if (timeLeft <= 0) return console.error("Time limit exceeded, cannot unblock sites!");
+  if (timeLeft <= 0)
+    return console.error("Time limit exceeded, cannot unblock sites!");
   const timeSpender = setInterval(async () => {
     await addTimeSpend();
     const left = await getTimeLeft();
     console.log("Time spent incremented. Time left:", left);
   }, 1000);
   try {
-    if (fs.existsSync(backupFile)) {
-      fs.copyFileSync(backupFile, "/etc/hosts");
-      exec("sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder");
-    } else {
-      console.error("No backup file found!");
+    try {
+      console.log("Restoring backup from:", backupFile);
+      if (fs.existsSync(backupFile)) {
+        console.log("Backup file found, restoring...");
+        fs.copyFileSync(backupFile, "/etc/hosts"); // overwrites by default
+        console.log("Copy complete, flushing DNS...");
+        exec("sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder");
+      } else {
+        console.error("No backup file found!");
+      }
+    } catch (err) {
+      console.error("Failed to restore hosts file:", err);
     }
   } catch (err) {
     console.error("Error restoring backup:", err.message);
