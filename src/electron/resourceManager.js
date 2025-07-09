@@ -6,10 +6,12 @@ import { exec } from "child_process";
 import fetch from "node-fetch";
 
 
+import process from "process";
+import dotenv from "dotenv";
+dotenv.config();
+
 // ✅ MongoDB Atlas connection
-const MONGO_URI =
-  "mongodb+srv://kanishkranjan17:capnin@leaderboard.5gmx8.mongodb.net/?retryWrites=true&w=majority&appName=leaderboard";
-await mongoose.connect(MONGO_URI, {
+await mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -120,8 +122,12 @@ export async function getGitInfo() {
   console.log("Fetching GitHub info...");
   try {
     const repo =
-      "https://api.github.com/repos/KanishkRanjan/Capnin-ICPC-Journey";
-    const token = "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";
+      `https://api.github.com/repos/${process.env.GITHUB_USERNAME}/${process.env.GITHUB_REPO}`;
+    if (!repo) {
+      console.error("GitHub repository not configured.");
+      return [];
+    }
+    const token = process.env.GIT_TOKEN;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const since = today.toISOString();
